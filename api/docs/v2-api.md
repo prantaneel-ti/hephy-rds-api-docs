@@ -48,7 +48,7 @@ A successful request against this endpoint results in a JSON object representing
 
 * > Queries the Harbour master database to find name and credentials of the RDS instance that can be used for creating a hephy database for a new cluster.
 
-* > Stores the mapping of the cluster and the RDS instance hosting the hephy database in the Harbour Master Database
+* > Stores the mapping of the cluster and the RDS instance hosting the hephy database in the Harbour Master Database and updates the number of hephy databases that the current instance is serving.
 
 ### Get the mapping of cluster and its hephy instance ###
 
@@ -108,13 +108,14 @@ A successful request to this endpoint returns the credentials for the hephy data
 * > It uses the `GET /hephy/clusterdb` to get the mapping of the cluster and the RDS instance which serves the hephy db for that cluster.
 
 * The delete request does the actual decommissioning process in a background job. When that process is complete, subsequent requests for hephy db info will show the state as `decommissioned`.
+ 
 
 ### Create a RDS instance to host hephy databases ###
 
 * Endpoint: `/v1/hephy/instances`
 * HTTP Verb: `POST`
 
-A successful request against this endpoint results in a JSON object representing the newly-created (but not provisioned) database as well as a `201` response code. In order for the request to be successful, you ***must*** provide a name and a user in your payload. There are also a few other attributes that you can tweak (see NOTES below). Example:
+A successful request against this endpoint results in a JSON object representing the newly-created (but not provisioned) database as well as a `201` response code. In order for the request to be successful, you ***must*** provide a `hephy_instance_name`, name and a user in your payload. There are also a few other attributes that you can tweak (see NOTES below). Example:
 
 #### Request ####
 
@@ -124,20 +125,24 @@ A successful request against this endpoint results in a JSON object representing
 
 ```json
 {
-  "name" : "hephy-instance-00000001",
+  "hephy_instance_name": "hephy-instance-0000001"
+  "name" : "hephy-instance-00000002",
   "user" : "eyk-central",
   "engine" : "postgres",
   "engine_version" : "10",
   "storage_db" : 100,
-  "instance_class" : "db.t3.large"
+  "instance_class" : "db.t3.medium"
+
 }
 ```
-
+#### Notes ####
+* > Queries the Harbour Mater database for number of hephy databases that the current instance is serving. If it is greater than a threshold `x`, a new RDS instance is created using the HM API.
 #### Response ####
 
 ```json
 {
-  "name" : "hephy-instance-00000001",
+  "instance_created": "true"
+  "name" : "hephy-instance-00000002",
   "host" : "",
   "port" : "",
   "user" : "eyk-central",
@@ -149,6 +154,7 @@ A successful request against this endpoint results in a JSON object representing
   "state" : "awaiting_provisioning"
 }
 ```
+
 #### Notes ####
 
 * The `name` and `user` payload fields are required and therefore make up the minimal payload for the request. All other values are optional and have defaults.
@@ -157,6 +163,10 @@ A successful request against this endpoint results in a JSON object representing
 
 * If specified, `storage_gb` *must* be an integer that is greater-than-or-equal-to `20`. The default is `100`.
 
-* If specified, `instance_class` *must* be a string that represents a supported instance size for your database instance(s). Currently, the only (and the default) supported instance size is `db.t3.large`, but we'll be expanding this shortly.
+* If specified, `instance_class` *must* be a string that represents a supported instance size for your database instance(s). Currently, the only (and the default) supported instance size is `db.t3.medium`, but we'll be expanding this shortly.
 
 * Actual provisioning of this resource is done in a background process, so it is not guaranteed to be ready when the request returns. The suggested mechanism for determining when the resource is ready to use is to poll the associated `GET` request for the `state` to change to `ready`. At this point, all values in the object should be populated as well.
+
+* Stores the created instance as the currently available instance.
+
+

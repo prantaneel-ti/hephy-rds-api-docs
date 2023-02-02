@@ -105,7 +105,7 @@ A successful request to this endpoint returns the credentials for the hephy data
 
 #### Notes ####
 
-* > It uses the `GET /hephy/clusterdb` to get the mapping of the cluster and the RDS instance which serves the hephy db for that cluster.
+* > It uses the `GET https://apiserver/v1/organizations/ORGNAME/clusters/CLUSTERNAME/hephy/databases` to get the mapping of the cluster and the RDS instance which serves the hephy db for that cluster.
 
 * The delete request does the actual decommissioning process in a background job. When that process is complete, subsequent requests for hephy db info will show the state as `decommissioned`.
  

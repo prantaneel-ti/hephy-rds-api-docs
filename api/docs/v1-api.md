@@ -136,7 +136,7 @@ A successful request against this endpoint results in a JSON object representing
 }
 ```
 #### Notes ####
-* > Queries the Harbour Mater database for number of hephy databases that the current instance is serving. If it is greater than a threshold `x`, a new RDS instance is created using the HM API.
+* > Queries the Harbour Mater database for number of hephy databases that the current instance is serving. If it is greater than a threshold `T`, a new RDS instance is created using the HM API.
 #### Response ####
 
 ```json

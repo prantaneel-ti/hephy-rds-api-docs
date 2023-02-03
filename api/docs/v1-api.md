@@ -1,4 +1,4 @@
-# EYK API v2 (Harbour Master) #
+# EYK API v1 (Changes in Harbour Master) #
 
 HarbourMaster is an authenticated JSON REST API that one uses to interact with EYK clusters and their associated resources.
 
